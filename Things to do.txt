@@ -1,0 +1,23 @@
+***Pages to finish off:***
+commit.php => saves adddata.php info such as new vehicle and new client
+
+***New Pages to create***
+
+General info and calculations
+	-dam volume calc - 1/3 * height * (top surface area + bottom surface are + sqrt(top surface area * bottom surface area)
+	-rough dam volume water surface area * depth * 0.4
+	-material for road length * width * depth * volume to mass index * compaction index
+	
+filter cross reference
+
+
+
+***vague concepts to implement***
+service history
+
+        -items to be routinely serviced per vehicle
+service procedure/checklist
+
+risk assesments
+
+
