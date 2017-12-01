@@ -142,9 +142,13 @@
 
     $extList = array();
 	$extList['gif'] = 'image/gif';
+	$extList['GIF'] = 'image/gif';
 	$extList['jpg'] = 'image/jpeg';
 	$extList['jpeg'] = 'image/jpeg';
+	$extList['JPEG'] = 'image/jpeg';
+	$extList['JPG'] = 'image/jpeg';
 	$extList['png'] = 'image/png';
+	$extList['PNG'] = 'image/png';
 	
 
 // You don't need to edit anything after this point.
