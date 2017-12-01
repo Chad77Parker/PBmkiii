@@ -1,0 +1,131 @@
+body{
+	margin:0; width:100%; height:100%; overflow:hidden;
+	a {text-decoration: none}
+	a:link {color:cyan }
+	a:visited {color:magenta }
+
+}
+#background{
+  position:absolute;
+	background: red no-repeat fixed center;
+	z-index:1;
+	width:100%;
+	height:100%;
+	top:0;
+	left:0;
+
+}
+#scroller {
+ position:absolute;
+	left:10em;
+	width:55%;
+	height:80%; 	top:17%;
+	overflow:auto;
+	z-index:2;
+	padding-right:2em;
+	text-align:center;
+
+} 
+#topbanner{
+	position:absolute; top:0; left:0;
+ 	width:100%;
+	height:15%;
+	text-align:center;
+	font-size:200%;
+	color:black;
+	z-index:5;
+}
+h3{
+	font-family:typewriter,arial;
+	text-align:center;
+	color:yellow;
+	font-size:150%;
+}
+h2{
+	font-family:typewriter,arial;
+	text-align:center;
+	color:olive;
+	font-size:200%;
+}
+#menu1{
+	position:absolute; bottom:10%; left:0; width:30%;
+	color:white;
+	font-family:typewriter,arial;
+	font-size:100%;
+	z-index:4;
+	text-align:center;
+}
+#menu2{
+	position:absolute; top:20%; left:0; width:30%;
+	color:white;
+	font-family:typewriter,arial;
+	font-size:100%;
+	z-index:4;
+	text-align:center;
+}
+select.fifty{
+	width:180px;
+}
+input.menu1button{
+	width:80%;
+	font-size:80%;
+}
+input.menu2button{
+	width:95%;
+	font-size:80%;
+}
+input.menu2button{
+	width:80%;
+	font-size:80%;
+}
+input.multirowsubmit{
+	width:150px;
+	height:800px;
+}
+table.normal{
+	width:10%;
+}
+table.threequarterwidth{
+  width:75%;
+}
+td.general{
+	color:black;
+	background-color:white;
+}
+td.Totals{
+	color:green;
+	background-color:#ffeeee;
+	font-size:125%;
+}
+td.SubHeading1{
+	color:blue;
+	background-color:white;
+	font-size:175%;
+}
+td.SubHeading2{
+	color:blue;
+	background-color:White;
+	font-size:150%;
+}
+td.SubHeading3{
+	color:black;
+	background-color:white;
+	font-size:125%;
+	font-style:bold;
+}
+p.general{
+	font-family:arial,sansserrif;
+	color:white;
+	text-align:Justify;
+	font-size:150%;
+
+	a {text-decoration: none};
+	a:link {color:lime };
+	a:visited {color:magenta };
+}
+p.notice{
+	font-family:arial;
+	color:orange;
+	text-align:center;
+	font-size:200%;
+}

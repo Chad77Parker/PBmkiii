@@ -1,0 +1,103 @@
+body{
+	margin:0; width:100%; height:100%; overflow:auto;
+	
+	
+	
+	a {text-decoration: none}
+	a:link {color:cyan }
+	a:visited {color:magenta }
+
+}
+#background{
+	position:absolute;
+	z-index:1; 
+	width:100%; 
+	height:100%;
+	top:0;
+	left:0;
+	fill:50%;
+	background: white url('BG2.jpeg') no-repeat fixed center;
+
+}
+ 
+#topbanner{
+	position:relative;
+	align:center; 
+	width:100%; 
+	height:10%; 
+	text-align:center;
+	font-size:250%;
+	color:lime;
+	z-index:5;
+	
+}
+#scroller{
+	align:center;
+	position:relative;
+	
+	z-index:2;
+}
+h3{
+	font-family:typewriter,arial;
+	text-align:center;
+	color:olive;
+	font-size:150%;
+}
+
+table.threequarterwidth{
+	width:75%;
+}
+td.general{
+	color:black;
+	background-color:white;
+}	
+td.Totals{
+	text-align:left;
+	color:green;
+	background-color:white;
+	font-size:120%;
+	font-weight:bold;
+}
+td.MasterTotals{
+	color:green;
+	background-color:white;
+	font-size:130%;
+	font-weight:bold;
+}	
+td.SubHeading1{
+	color:blue;
+	background-color:white;
+	font-size:140%;
+	font-weight:bold;
+}
+td.SubHeading2{	
+	color:black;
+	background-color:white;
+	font-size:130%;
+	font-weight:bold;
+}
+td.SubHeading3{
+	color:black;
+	background-color:white;
+	font-size:110%;
+	font-weight:bold;
+}
+p.pagebreakhere{
+	page-break-after: always;
+}
+p.general{
+	font-family:arial,sansserrif;
+	color:black;
+	text-align:center;
+	font-size:100%;
+
+	a {text-decoration: none};
+	a:link {color:lime };
+	a:visited {color:magenta };
+}
+p.notice{
+	font-family:arial;
+	color:orange;
+	text-align:center;
+	font-size:200%;
+}
