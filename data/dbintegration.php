@@ -65,4 +65,45 @@ while ($row =  mysql_fetch_row($res)){
 $htmlstring = $htmlstring.'</table>';
 return($htmlstring);
 }
+
+function backupdatabase(){
+ //path to mysql dump utility
+$dump_path = "C:\\xampp\\mysql\\bin\\";
+
+// location to store backups
+$save_path = "E:\\Documents\\ParkerBros\\Backups";
+
+//connect to database
+dbconnect();
+
+// format dir name
+$today = '\\'.date("m-d-Y");
+
+//check if directory exists otherwise create it
+if ( !file_exists ( is_dir ($save_path.$today) ) )
+{
+    mkdir( $save_path . $today );
+}
+
+// list all mysql dbs
+$result = mysql_list_dbs();
+//debug echo 'databases;'.$result;
+// init counter var
+$i = 0;
+   // list all databases in mysql
+while ( $i < mysql_num_rows ( $result ) )
+{
+    $tb_names[$i] = mysql_tablename ( $result, $i );
+          $i++;
+}
+
+// loop through table names and do the dump
+for ( $i=0; $i<count($tb_names); $i++ )
+{
+    $do = $dump_path . "mysqldump -h" . $host . " -u" . $user . " -p" . $pass . " --opt " . $tb_names[$i] . " > " . $save_path . $today . "\\" . $tb_names[$i] . ".sql";
+   echo '<br>'.$do;
+    system($do);
+}
+dbclose();
+}
 ?>
