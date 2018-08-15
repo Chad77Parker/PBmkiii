@@ -19,8 +19,8 @@ function NewSparePart(){
 function NewServiceItem(){
 	window.location.assign("NewServiceItem.php");
 }
-function ServiceVehicle(){
-	window.location.assign("ServiceVehicle.php");
+function LastServCheck(){
+	window.location.assign("LastServiceCheck.php");
 }
 function ServiceVehicleHistory(){
 	window.location.assign("ServiceVehicleHistory.php");
@@ -68,7 +68,7 @@ echo '
 <p class="general">
 <h3>Select Service Option</h3>
 <input type="button" value="Enter Service/Repair Report" onclick=ServiceReport() class="menu3button"><br>
-<input type="button" value="Service Vehicle" onclick=ServiceVehicle() class="menu3button"><br>
+<input type="button" value="Last Service Check" onclick=LastServCheck() class="menu3button"><br>
 <input type="button" value="Vehicle Service History" onclick=ServiceVehicleHistory() class="menu3button"><br>
 <input type="button" value="Enter New Daily Checklist" onclick=EnterDailyChecklist() class="menu3button"><br>
 <input type="button" value="View Daily Checklists" onclick=DailyChecklistReport() class="menu3button"><br>';
