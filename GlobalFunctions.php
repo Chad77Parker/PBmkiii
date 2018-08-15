@@ -1,16 +1,17 @@
 <?php
+require_once 'data/dbintegration.php';
 if (!isset($_SESSION)) { session_start(); }
 
 //*********************************************************************
 // function for checking if user has been logged in for more than 30 mins
 function checktimeout(){
-if (($_SESSION['SessionStartTime']+1800)>time()){
-	return(false);
-}
-else{
+$timeout = (($_SESSION['SessionStartTime']+1800)<time() ? true : false);
+if ($timeout||!$_SESSION['loggedin']){
+  $_SESSION['loggedin']=false;
 	return(true);
-}
+ }
 $_SESSION['SessionStartTime']=time();
+return(false);
 }
 //************************************************************************
 // Standard Menu
@@ -118,8 +119,8 @@ switch($_SESSION['Permission']){
 }
 //****************************************************************
 //function for checking dailychecklist
-function DailyCheckListCheck($link){
-  $query = 'select * from parkerbros.dailychecklist where Fluids in("FAULT", "LOW HAZARD/ASSESMENT REQUIRED", "DO NOT OPERATE")
+function DailyCheckListCheck(){
+  $query = 'select count(*) as NumberOfFaults from parkerbros.dailychecklist where Fluids in("FAULT", "LOW HAZARD/ASSESMENT REQUIRED", "DO NOT OPERATE")
    or Wear_or_Damage in("FAULT", "LOW HAZARD/ASSESMENT REQUIRED", "DO NOT OPERATE")
    or Wheels_Tracks_Tyres in("FAULT", "LOW HAZARD/ASSESMENT REQUIRED", "DO NOT OPERATE")
    or Hydraulics in("FAULT", "LOW HAZARD/ASSESMENT REQUIRED", "DO NOT OPERATE")
@@ -131,8 +132,8 @@ function DailyCheckListCheck($link){
    or Warning_Devices in("FAULT", "LOW HAZARD/ASSESMENT REQUIRED", "DO NOT OPERATE")
    or Other in("FAULT", "LOW HAZARD/ASSESMENT REQUIRED", "DO NOT OPERATE");';
 
-$res = mysql_query($query,$link);
-return(mysql_num_rows($res));
+$res = dbquery($query);
+return(dbfetchassoc($res)['NumberOfFaults']);
 }
 
 //****************************************************************
@@ -159,9 +160,9 @@ function MobileDetect(){
 //function for checking if backup required
 function RequireBackup(){
   $query = 'select Permission, Ind, LastBackup from parkerbros.employees where Ind="'.$_SESSION['EmployeeInd'].'";';
-  $res = mysql_query($query);
+  $res = dbquery($query);
   $RequireBackup = false;
-  while($row=mysql_fetch_assoc($res)){
+  while($row=dbfetchassoc($res)){
     //debug echo  date("d/m/Y H:i",(time()-2592000)).' time - 30 days > '.date("d/m/Y H:i", strtotime($row['LastBackup'])).'last backup date<br>';
     if((time()-2592000)>strtotime($row['LastBackup'])){
       if($row['Permission']='ADMIN'){
@@ -347,4 +348,8 @@ $i++;
 
 return($htmlstring);
 }
+
+
+//****************************************************************
+
 ?>

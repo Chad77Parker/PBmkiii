@@ -1,7 +1,7 @@
 <?php
 
-require 'GlobalFunctions.php';
-require 'data/dbintegration.php';
+require_once 'GlobalFunctions.php';
+require_once 'data/dbintegration.php';
 
 echo '<html>
       <head>
