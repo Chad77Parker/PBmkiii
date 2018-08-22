@@ -3,11 +3,15 @@
 
 //Global Variables
 $link;
+define('DBHOST', "localhost");
+define('DBUSER', "root");
+define('DBPASS', "keogh");
 
 function dbconnect(){
 global $link;
+
   //connect to database
-$link = @mysql_connect('localhost','root','keogh');
+$link = @mysql_connect(DBHOST,DBUSER,DBPASS);
 if (!$link) {
     die('Could not connect to MySQL server: ' . mysql_error());
 }
@@ -80,14 +84,13 @@ dbconnect();
 $today = '\\'.date("m-d-Y");
 
 //check if directory exists otherwise create it
-if ( !file_exists ( is_dir ($save_path.$today) ) )
-{
-    mkdir( $save_path . $today );
+if ( !file_exists ($save_path.$today) ){
+    mkdir( $save_path.$today );
 }
 
 // list all mysql dbs
 $result = mysql_list_dbs();
-//debug echo 'databases;'.$result;
+
 // init counter var
 $i = 0;
    // list all databases in mysql
@@ -98,12 +101,14 @@ while ( $i < mysql_num_rows ( $result ) )
 }
 
 // loop through table names and do the dump
+$error = "";
 for ( $i=0; $i<count($tb_names); $i++ )
 {
-    $do = $dump_path . "mysqldump -h" . $host . " -u" . $user . " -p" . $pass . " --opt " . $tb_names[$i] . " > " . $save_path . $today . "\\" . $tb_names[$i] . ".sql";
-   echo '<br>'.$do;
-    system($do);
+    $do = $dump_path . "mysqldump -h".DBHOST." -u".DBUSER." -p".DBPASS." --opt " . $tb_names[$i] . " > " . $save_path . $today . "\\" . $tb_names[$i] . ".sql";
+    system($do, $retv);
+    if($retv != 0){$error = $error.'<br>Error with '.$do;}
 }
 dbclose();
+return($error);
 }
 ?>
