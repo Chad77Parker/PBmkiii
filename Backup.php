@@ -1,6 +1,6 @@
 <?php
 
-require_once 'GlobalFunctions.php';
+require 'GlobalFunctions.php';
 require_once 'data/dbintegration.php';
 
 echo '<html>
@@ -29,11 +29,13 @@ LoggedInMenu();
 
 <p class="general">
 <?php
-
-$query='update parkerbros.employees set LastBackup="'.date('Y/m/d H:i').'" where Ind='.$_SESSION['EmployeeInd'].';';
-$res=dbquery($query);
-if(!$res){
-  die('An error occured');
+if (backupdatabase() == ""){
+   $query='update parkerbros.employees set LastBackup="'.date('Y/m/d H:i').'" where Ind='.$_SESSION['EmployeeInd'].';';
+   $res=dbquery($query);
+   if(!$res){
+      die('An error occured');
+   }
+   echo '<h3> <a href="ParkerBros.php">DataBase successfully backed up. Return Home</a></h3>';
 }
 ?>
 <h3> <a href="ParkerBros.php">DataBase successfully backed up. Return Home</a></h3>
