@@ -61,6 +61,9 @@ if ($_SESSION['Permission'] == 'ADMIN'){
    $htmlstring=$htmlstring.'<h3>There are '.$Dailycheck.' faults reported in Daily Checklists</h3>';
    $htmlstring=$htmlstring.'<form action="ViewDailyChecklist.php" method="post"><input name="query" type="hidden" value="CurrentFaults"><input type="submit" value="View Daily Checklists"></form>';
  }
+ if(RequireBackup()){
+  $htmlstring=$htmlstring.'<br><h3>Database requires backup. <a href="Backup.php">Click here to execute backup. </a></h3><br>';
+}
 }
 $htmlstring=$htmlstring.'</div>';
 echo $htmlstring;
