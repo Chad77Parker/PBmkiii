@@ -44,6 +44,18 @@ function dbfetchassoc($res){
   return($row);
 }
 
+function dbnumrows($res){
+  return(mysql_num_rows($res));
+}
+
+function dbnumfields($res){
+  return(mysql_num_fields($res));
+}
+
+function dbfieldname($res, $i){
+  return(mysql_field_name($res, $i));
+}
+
 
 function buildtable($sql){
 $res = dbquery($sql);
