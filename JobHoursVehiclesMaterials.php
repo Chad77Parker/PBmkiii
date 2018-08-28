@@ -1,23 +1,27 @@
 <?php
-session_start();
-if ($_SESSION['loggedin']!=true){
-die('You are not authorised to view this page');
-}
-include 'GlobalFunctions.php';
-if (checktimeout()){
-	die('Your connection has expired please log back in.<a href="ParkerBros.php">Return Home</a>');
-}
-echo'	<html>
-	<head>
-	<title>Job Vehicle Hours and Materials</title>';
-if(strstr(strtolower($_SERVER['HTTP_USER_AGENT']),'iphone')){
-	echo '<link href="data/iPhoneDualScrollWithHeader.css" type="text/css" rel="stylesheet" />
-		<meta name="viewport" content="width = 600" />';
-}
-else{
-	echo '<link href="data/DualScrollWithHeader.css" type="text/css" rel="stylesheet" />';
-}
+require_once 'GlobalFunctions.php';
+require_once 'data/dbintegration.php';
+
+echo '<html>
+      <head>
+      <title>Parker Bros Earthmoving Pty Ltd</title>';
+echo MobileDetect(); /*must be in html header*/
+echo '</head>
+     <body>
+
+     <img id="topbanner" src="images\pbbanner1.jpg"  border="0">
+     <div id="topbanner">
+     Parker Bros Earthmoving Pty Ltd.
+     </div>
+
+     <div id="background">&nbsp</div>';
+
+StandardMenu();
+if (checktimeout()){die('<div id= "scroller">You are not authorised to view this page or your session has expired please log in. <a href="ParkerBros.php">Return Home</a></div>');}
+LoggedInMenu();
 ?>
+<div id="background">&nbsp</div>
+<div id="scroller">
 
 <script type="text/javascript" language="javascript">
 function DailyChecklistNotOK(VehicleNum){
@@ -27,49 +31,22 @@ function DailyChecklistNotOK(VehicleNum){
 
 }
 </script>
-
-</head>
-<body>
-
-<img id="topbanner" src="images\pbbanner1.jpg" height="100%" border="0">
-<div id="topbanner">
-Parker Bros Earthmoving Pty Ltd.
-</div>
-
 <?php
-StandardMenu();
-if ($_SESSION['loggedin']){
-	LoggedInMenu();
-}
-//connect to database
-$link = @mysql_connect($_SESSION['host'], $_SESSION['user'], $_SESSION['pass']);
-if (!$link) {
-    die('Could not connect to MySQL server: ' . mysql_error());
-}
-$dbname = $_SESSION['datab'];
-$db_selected = mysql_select_db($dbname, $link);
-if (!$db_selected) {
-    die("Could not set $dbname: " . mysql_error());
-}
-echo '
-<div id="header">';
+echo '<div id="header">';
 
 /*Code to add employee hours */
  if ($_POST['StartTime']!=="0") {
 	$query='insert into employeehours2 (Employee, StartTime, EndTime, Lunch, EmployeeHoursDate) values ('.$_SESSION['EmployeeInd'].', '.$_POST['EmployeeHoursDate'].$_POST['StartTime'].', '.$_POST['EmployeeHoursDate'].$_POST['EndTime'].', '.$_POST['EmployeeHoursDate'].$_POST['Lunch'].', '.$_POST['EmployeeHoursDate'].');';
 
-	$res=mysql_query($query, $link);
-	if (!$res){
-		die(mysql_error());
-	}
+	$res=dbquery($query);
 echo '<h3>Saved employee Daily Hours for '.$_SESSION['FirstName'].' '.$_SESSION['LastName'].'.</h3>';
 }
 
 /* Code to test if new job descrition already exists */
 if (isset($_POST['NewJob'])) {
 	$query='select * from jobs where JobDescription="'.$_POST['NewJobDescription'].'";';
-	$res=mysql_query($query, $link);
-	if (mysql_num_rows($res)!=0){
+	$res=dbquery($query);
+	if (dbnumrows($res)!=0){
 		echo '</table><br><h3>Job description '.$_POST['NewJobDescription'].' already exists please choose another description. <a href="JobHoursClient&DateSelect.php"> Enter Job Details only.</a></h3></div><div id="background"></div>';
 		die();
 	}
@@ -80,15 +57,11 @@ echo	'<form action="CommitJobHours.php" method="post" >
 	<table border="1">
 	<tr><td class="general">Client<td colspan="7" class="general">';
 $query='select ContactFirstName, ContactLastName, ContactTitleOrPosition, Ind, Company from contacts where Ind='.$_POST['ClientInd'].';';
-$res=mysql_query($query, $link);
-if (!$res){
-	die(mysql_error());
-}
-while ($row = mysql_fetch_assoc($res)) {
+$res=dbquery($query);
+while ($row = dbfetchassoc($res)) {
 		$htmlstring=$row['Company'].'.   Person in charge '.$row['ContactTitleOrPosition'].', '.$row['ContactFirstName'].' '.$row['ContactLastName'];
 	}
-	mysql_free_result($res);
-echo $htmlstring;	
+echo $htmlstring;
 echo '<input type="hidden" name="ClientInd" value="'.$_POST['ClientInd'].'"><td rowspan="2"><input type="submit" value="Submit">';
 echo '<tr><td class="general">Job Description<td class="general"><input name="JobDescription" id="JobDesc" value="';
  if (isset($_POST['NewJob'])) {
@@ -121,20 +94,12 @@ echo '<tr><tr><td class="general">Vehicle '.$n.'<td class="general" colspan="2">
 echo '<select name="Vehicle'.$n.'" id="Vehicle'.$n.'">';
 $query='select vehicles.Name, Make, Model, vehicles.Ind from parkerbros.vehicles left outer join parkerbros.vehiclehours
 on vehiclehours.vehicle=vehicles.ind where StatusSelect="ACTIVE" group by vehicles.ind order by max(OperationDate) desc ;';
-$res=mysql_query($query);
-if (!$res){
-	die(mysql_error());
-}
+$res=dbquery($query);
 echo '<option value="false">Please Select Vehicle</option>';
-while ($row = mysql_fetch_assoc($res)) {
+while ($row = dbfetchassoc($res)) {
 		$htmlstring=$htmlstring.'<option value="'.$row['Ind'].'">'.$row['Name'].'.  '.$row['Make'].' '.$row['Model'].'</option>';
 	}
-	mysql_free_result($res);
 echo $htmlstring.'</select>';
-
-
-
-
 echo '<tr><td class="general">Vehicle '.$n.' Hours<td class="general">';
 echo '<select name="VehicleHours'.$n.'">';
 $x=0;
