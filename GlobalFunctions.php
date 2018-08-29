@@ -37,10 +37,9 @@ echo '<script type="text/javascript" language="javascript">
   }
 	</script>
 	<div id="menu1">
-
-	&nbsp<input type="button" onclick=Home() value="Home" class="menu1button">&nbsp
+  <input type="button" onclick=Home() value="Home" class="menu1button">&nbsp
 	<input type="button" onclick=Login() value="Employee Login" class="menu1button">&nbsp
-  <input type="checkbox" onclick=MobileDev() '.$MobileDev.' class="menu1button">Mobile Site
+  <input type="checkbox" onclick=MobileDev() '.$MobileDev.' class="menu1button" id="MobileDevCheck">Mobile Site
   <input type="button" onclick=GeneralInfo() value="Information" class="menu1button">&nbsp
 	</div>';
 
@@ -137,21 +136,30 @@ return(dbfetchassoc($res)['NumberOfFaults']);
 }
 
 //****************************************************************
-function MobileDetect(){
+function MobileDetect($type='Standard'){
+
+         $DeviceType="PC";
          if(strstr(strtolower($_SERVER['HTTP_USER_AGENT']),'iphone')){
               $DeviceType="MOBILE";
-         }elseif(isset($_COOKIE['MobileDev'])){
+         }
+         if(isset($_COOKIE['MobileDev'])){
             if($_COOKIE['MobileDev']=='true'){
               $DeviceType="MOBILE";
               }
-         }else{
-              $DeviceType="PC";
          }
          if($DeviceType=="MOBILE"){
               $htmlstring= '<link href="data/iPhonestandard.css" type="text/css" rel="stylesheet" />
                            <meta name="viewport" content="width = 480" />';
          }else{
 	            $htmlstring= '<link href="data/standard.css" type="text/css" rel="stylesheet" />';
+         }
+         if($type=='Dual'){
+              if($DeviceType=="MOBILE"){
+                 $htmlstring= '<link href="data/iPhoneDualScrollWithHeader.css" type="text/css" rel="stylesheet" />
+                               <meta name="viewport" content="width = 480" />';
+              }else{
+	               $htmlstring= '<link href="data/DualScrollWithHeader.css" type="text/css" rel="stylesheet" />';
+         }
          }
          return($htmlstring);
 }

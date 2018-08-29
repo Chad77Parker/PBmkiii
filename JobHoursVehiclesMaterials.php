@@ -5,7 +5,7 @@ require_once 'data/dbintegration.php';
 echo '<html>
       <head>
       <title>Parker Bros Earthmoving Pty Ltd</title>';
-echo MobileDetect(); /*must be in html header*/
+echo MobileDetect('Dual'); /*must be in html header*/
 echo '</head>
      <body>
 
@@ -21,8 +21,6 @@ if (checktimeout()){die('<div id= "scroller">You are not authorised to view this
 LoggedInMenu();
 ?>
 <div id="background">&nbsp</div>
-<div id="scroller">
-
 <script type="text/javascript" language="javascript">
 function DailyChecklistNotOK(VehicleNum){
       VehicleInd = document.getElementById( "Vehicle"+VehicleNum).value;
@@ -145,6 +143,6 @@ echo	'</table>
 
 </p>
 
-<div id="background">&nbsp</div>
+
 </body>
 </html>
