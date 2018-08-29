@@ -35,7 +35,7 @@ function dbquery($sql){
   if(!$res){
     die(mysql_error());
   }
-  dbclose();
+
   return($res);
 }
 
@@ -56,6 +56,9 @@ function dbfieldname($res, $i){
   return(mysql_field_name($res, $i));
 }
 
+function dbfetchrow($res){
+  return(mysql_fetch_row($res));
+}
 
 function buildtable($sql){
 $res = dbquery($sql);
