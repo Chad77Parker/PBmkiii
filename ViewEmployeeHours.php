@@ -1,67 +1,43 @@
 <?php
-session_start();
-include 'GlobalFunctions.php';
-if ($_SESSION['loggedin']!=true){
-die('You are not authorised to view this page');
-}
-if (checktimeout()){
-	die('Your connection has expired please log back in.<a href="ParkerBros.php">Return Home</a>');
-}
+require_once 'GlobalFunctions.php';
+require_once 'data/dbintegration.php';
 
 echo '<html>
       <head>
-      <title>View Employee Hours</title>';
-echo MobileDetect();
-?>
+      <title>Parker Bros Earthmoving Pty Ltd</title>';
+echo MobileDetect(); /*must be in html header*/
+echo '</head>
+     <body>
 
-</head>
-<body>
+     <img id="topbanner" src="images\pbbanner1.jpg"  border="0">
+     <div id="topbanner">
+     Parker Bros Earthmoving Pty Ltd.
+     </div>
 
-<img id="topbanner" src="images\pbbanner1.jpg" height="100%" border="0">
-<div id="topbanner">
-Parker Bros Earthmoving Pty Ltd.
-</div>
-
-
-<?php
-//connect to database
-$link = @mysql_connect($_SESSION['host'], $_SESSION['user'], $_SESSION['pass']);
-if (!$link) {
-    die('Could not connect to MySQL server: ' . mysql_error());
-}
-$dbname = $_SESSION['datab'];
-$db_selected = mysql_select_db($dbname, $link);
-if (!$db_selected) {
-    die("Could not set $dbname: " . mysql_error());
-}
+     <div id="background">&nbsp</div>';
 
 StandardMenu();
-if ($_SESSION['loggedin'] and !checktimeout()){
-	LoggedInMenu();
-}
+if (checktimeout()){die('<div id= "scroller">You are not authorised to view this page or your session has expired please log in. <a href="ParkerBros.php">Return Home</a></div>');}
+LoggedInMenu();
 ?>
-
+<div id="background">&nbsp</div>
 <div id="scroller">
 <?php
 $query='select FirstName, LastName from employees where Ind='.$_POST['EmployeeInd'].';';
-$res=mysql_query($query);
-while ($row = mysql_fetch_assoc($res)){
+$res=dbquery($query);
+while ($row = dbfetchassoc($res)){
 	$Name=$row['FirstName'].' '.$row['LastName'];
 }
-mysql_free_result($res);
-echo '<h3>Hours For '.$Name.'.<br> 
+echo '<h3>Hours For '.$Name.'.<br>
 	Between '.date("l jS F", strtotime($_POST['StartDateyear'].$_POST['StartDatemonth'].$_POST['StartDateday'])).
 	' and <br>'.date("l jS F Y", strtotime($_POST['EndDateyear'].$_POST['EndDatemonth'].$_POST['EndDateday'])).'.</h3>';
 
 echo 	'<table class="threequarterwidth" border="2"><tr><td class="general">Start<td class="general">Finish<td class="general">Lunch<td class="general">Date<td class="general">Hours<td class="general">OverTime<td class="general">Total</td>';
 $query='select StartTime, EndTime, Lunch, EmployeeHoursDate from employeehours2 where Employee='.$_POST['EmployeeInd'].' and EmployeeHoursDate between '.$_POST['StartDateyear'].$_POST['StartDatemonth'].$_POST['StartDateday'].' and '.$_POST['EndDateyear'].$_POST['EndDatemonth'].$_POST['EndDateday'].' Group by StartTime order by StartTime;';
-$res=mysql_query($query);
-if(!$res){
-	die(mysql_error());
-}
+$res=dbquery($query);
 $TimeTotalAcc=0;
 $TimeOverAcc=0;
-while ($row = mysql_fetch_assoc($res)){
+while ($row = dbfetchassoc($res)){
   $EHDate=strtotime($row['EmployeeHoursDate']);
 	 $STime=strtotime($row['StartTime']);
 	 $ETime=strtotime($row['EndTime']);
@@ -135,9 +111,5 @@ echo 	'</table></form><br>
 
 </p>
 </div>
-
-
-<div id="background">&nbsp</div>
-
 </body>
 </html>
