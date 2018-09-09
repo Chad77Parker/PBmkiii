@@ -1,73 +1,48 @@
 <?php
-//load global functions, check that user is logged in, and initialise database***********
-session_start();
-include 'GlobalFunctions.php';
-if ($_SESSION['loggedin']!=true){
-die('You are not authorised to view this page');
-}
-if (checktimeout()){
-	die('Your connection has expired please log back in.<a href="ParkerBros.php">Return Home</a>');
-}
+require_once 'GlobalFunctions.php';
+require_once 'data/dbintegration.php';
+
 echo '<html>
       <head>
       <title>Parker Bros Earthmoving Pty Ltd</title>';
 echo MobileDetect(); /*must be in html header*/
+echo '</head>
+     <body>
+
+     <img id="topbanner" src="images\pbbanner1.jpg"  border="0">
+     <div id="topbanner">
+     Parker Bros Earthmoving Pty Ltd.
+     </div>
+
+     <div id="background">&nbsp</div>';
+
+StandardMenu();
+if (checktimeout()){die('<div id= "scroller">You are not authorised to view this page or your session has expired please log in. <a href="ParkerBros.php">Return Home</a></div>');}
+LoggedInMenu();
 ?>
+<div id="background">&nbsp</div>
+<div id="scroller">
 <script type="text/javascript" language="javascript">
 function reloadwithvehicle(Ind){
   newurl =  document.getElementById( "Vehicle").value;
   window.location.assign("ServiceReport.php?Vehicle=" +newurl);
 }
 </script>
-</head>
-<body>
-
-<img id="topbanner" src="images\pbbanner1.jpg"  border="0">
-<div id="topbanner">
-Parker Bros Earthmoving Pty Ltd.
-</div>
-
-
-<?php
-//connect to database
-$link = @mysql_connect($_SESSION['host'], $_SESSION['user'], $_SESSION['pass']);
-if (!$link) {
-    die('Could not connect to MySQL server: ' . mysql_error());
-}
-$dbname = $_SESSION['datab'];
-$db_selected = mysql_select_db($dbname, $link);
-if (!$db_selected) {
-    die("Could not set $dbname: " . mysql_error());
-}
-
-
-
-StandardMenu();
-if ($_SESSION['loggedin'] and !checktimeout()){
-	LoggedInMenu();
-}
-?>
-//begin page specific code******************************************************
-<div id="scroller">
 <?php
 echo '	<form action="CommitServiceReport.php" method="post">
 	<table border="1"><tr><td class="general">Vehicle<td class="general">';
 $htmlstring='';
-$query='select vehicles.Name, Make, Model, vehicles.Ind from parkerbros.vehicles left outer join parkerbros.vehiclehours
+$query='select vehicles.Name, Make, Model, Registration, vehicles.Ind from parkerbros.vehicles left outer join parkerbros.vehiclehours
 on vehiclehours.vehicle=vehicles.ind where StatusSelect="ACTIVE" group by vehicles.ind order by max(OperationDate) desc ;';
-$res=mysql_query($query);
-if (!$res){
-	die(mysql_error());
-}
+$res=dbquery($query);
 echo '<select name="Vehicle" id="Vehicle" onChange=reloadwithvehicle()><option value="false">Please Select Vehicle</option>';
-while ($row = mysql_fetch_assoc($res)) {
+while ($row = dbfetchassoc($res)) {
     if($_GET['Vehicle'] == $row['Ind']){
-      $htmlstring=$htmlstring.'<option value="'.$row['Ind'].'" selected="selected">'.$row['Name'].'.  '.$row['Make'].' '.$row['Model'].'</option>';
+      $htmlstring=$htmlstring.'<option value="'.$row['Ind'].'" selected="selected">'.$row['Name'].'.  '.$row['Make'].' '.$row['Model'].' REG:'.$row['Registration'].'</option>';
     }else{
-    $htmlstring=$htmlstring.'<option value="'.$row['Ind'].'">'.$row['Name'].'.  '.$row['Make'].' '.$row['Model'].'</option>';
+    $htmlstring=$htmlstring.'<option value="'.$row['Ind'].'">'.$row['Name'].'.  '.$row['Make'].' '.$row['Model'].' REG:'.$row['Registration'].'</option>';
     }
 	}
-	mysql_free_result($res);
 echo $htmlstring.'</select>';
 echo	'<td class="general">Date';
 
@@ -129,12 +104,9 @@ if (isset($_GET['Vehicle'])){
    or Controls in("FAULT", "LOW HAZARD/ASSESMENT REQUIRED", "DO NOT OPERATE")
    or Warning_Devices in("FAULT", "LOW HAZARD/ASSESMENT REQUIRED", "DO NOT OPERATE")
    or Other in("FAULT", "LOW HAZARD/ASSESMENT REQUIRED", "DO NOT OPERATE"));';
-   $res = mysql_query($query);
-   if (!$res){
-	    die(mysql_error());
-   }
+   $res = dbquery($query);
    $htmlstring = '<select name="DailyCheckListNumber"><option>No Daily Checklist</option>';
-   while ($row = mysql_fetch_assoc($res)) {
+   while ($row = dbfetchassoc($res)) {
          $htmlstring =$htmlstring.' <option>'.$row['Ind'].'</option>';
    }
    $htmlstring = $htmlstring.'</select>';
@@ -150,15 +122,6 @@ $x++;
 echo '<tr><td colspan="8"><input type="submit"></table>
      </form>';
 ?>
-
-<p class="general">
-This site is under construction and is only for testing purposes no information contained herein is of any factual events or persons
-
-</p>
 </div>
-
-//end page specific code********************************************************
-<div id="background">&nbsp</div>
-
 </body>
 </html>
