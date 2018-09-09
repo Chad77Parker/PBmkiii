@@ -1,71 +1,39 @@
 <?php
-session_start();
-include 'GlobalFunctions.php';
-if ($_SESSION['loggedin']!=true){
-die('You are not authorised to view this page');
-}
-if (checktimeout()){
-	die('Your connection has expired please log back in.<a href="ParkerBros.php">Return Home</a>');
-}
+require_once 'GlobalFunctions.php';
+require_once 'data/dbintegration.php';
+
 echo '<html>
       <head>
       <title>Parker Bros Earthmoving Pty Ltd</title>';
-echo MobileDetect();
-?>
-  
-</head>
-<body>
+echo MobileDetect(); /*must be in html header*/
+echo '</head>
+     <body>
 
-<img id="topbanner" src="images\pbbanner1.jpg"  border="0">
-<div id="topbanner">
-Parker Bros Earthmoving Pty Ltd.
-</div>
+     <img id="topbanner" src="images\pbbanner1.jpg"  border="0">
+     <div id="topbanner">
+     Parker Bros Earthmoving Pty Ltd.
+     </div>
 
-
-<?php
-//connect to database
-$link = @mysql_connect($_SESSION['host'], $_SESSION['user'], $_SESSION['pass']);
-if (!$link) {
-    die('Could not connect to MySQL server: ' . mysql_error());
-}
-$dbname = $_SESSION['datab'];
-$db_selected = mysql_select_db($dbname, $link);
-if (!$db_selected) {
-    die("Could not set $dbname: " . mysql_error());
-}
-
-
+     <div id="background">&nbsp</div>';
 
 StandardMenu();
-if ($_SESSION['loggedin'] and !checktimeout()){
-	LoggedInMenu();
-}
+if (checktimeout()){die('<div id= "scroller">You are not authorised to view this page or your session has expired please log in. <a href="ParkerBros.php">Return Home</a></div>');}
+LoggedInMenu();
 ?>
-
-
-
-
-
-
-
-
-
+<div id="background">&nbsp</div>
 <div id="scroller">
 <?php
 
 echo '<form action="ViewPreviousInvoiceDetailed.php" method="post"><table class="threequarterwidth" border="2">';
 echo '<tr><td colspan="6"><input type="submit" value="View Invoice"><tr><td class="Subheading3">Select Invoice<td class="Subheading3">Invoice<td class="Subheading3">Invoice Date<td class="Subheading3">Client<td class="Subheading3">Job Description<td class="Subheading3">Date Completed</td>';
 $InvoiceQuery='select * from invoices order by InvoiceNumber desc;';
-$Invoiceres=mysql_query($InvoiceQuery);
-if(!$Invoiceres){
-	die(mysql_error());
-}
+$Invoiceres=dbquery($InvoiceQuery);
 $PrevInvoice=0;
 $PrevClient=0;
 $Firstjob=true;
 $PrevJob=0;
 $firstInvoiceFlag=true;
-while ($row = mysql_fetch_assoc($Invoiceres)){
+while ($row = dbfetchassoc($Invoiceres)){
 	if ($row['InvoiceNumber']!=$PrevInvoice){
 		if (!$firstInvoiceFlag){
 			echo '<tr>';
@@ -76,22 +44,16 @@ while ($row = mysql_fetch_assoc($Invoiceres)){
 		$PrevInvoice=$row['InvoiceNumber'];
 	}
 	$JobQuery='select * from jobs where Ind="'.$row['JobInd'].'";';
-	$JobRes=mysql_query($JobQuery);
-	if(!$JobRes){
-		die(mysql_error());
-	}
-	while ($JobRow = mysql_fetch_assoc($JobRes)){
+	$JobRes=dbquery($JobQuery);
+	while ($JobRow = dbfetchassoc($JobRes)){
 		if($PrevClient!=$JobRow['ClientInd'] or $FirstClient){
 			if(!$FirstClient){
 				echo '<tr><td class="general" colspan="3">';
 			}
 			
 			$ClientQuery='select ContactFirstName, ContactLastName, ContactTitleOrPosition, Company from contacts where Ind="'.$JobRow['ClientInd'].'";';
-			$ClientRes=mysql_query($ClientQuery);
-			if (!$ClientRes){
-				die(mysql_error());
-			}
-			while ($ClientRow = mysql_fetch_assoc($ClientRes)){
+			$ClientRes=dbquery($ClientQuery);
+			while ($ClientRow = dbfetchassoc($ClientRes)){
 				echo '<td class="general">'.$ClientRow['Company'].'. '.$ClientRow['ContactTitleOrPosition'].', '.$ClientRow['ContactFirstName'].' '.$ClientRow['ContactLastName'].'.';
 				$FirstClient=false;
 				$FirstJob=true;
@@ -112,24 +74,6 @@ $FirstClient=false;
 
 ?>
 <tr><tr><td colspan="6"><input type="submit" value="View Invoice"></table></form>
-
-
-
-
-
-
-
-
-
-
 </div>
-
-
-
-
-
-
-<div id="background">&nbsp</div>
-
 </body>
 </html>
