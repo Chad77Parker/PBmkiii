@@ -44,20 +44,24 @@ function DailyChecklistReport(){
 function EnterDailyChecklist(){
   window.location.assign("NewDailyChecklist.php");
 }
+function NewVehicle() {
+		       window.location.assign("adddata.php?table=vehicles&returnaddress=ParkerBros.php")
+}
 </script>   
 <p class="general">
 <h3>Select Service Option</h3>
 <input type="button" value="Enter Service/Repair Report" onclick=ServiceReport() class="menu3button"><br>
-<input type="button" value="Last Service Check" onclick=LastServCheck() class="menu3button"><br>
-<input type="button" value="Vehicle Service History" onclick=ServiceVehicleHistory() class="menu3button"><br>
 <input type="button" value="Enter New Daily Checklist" onclick=EnterDailyChecklist() class="menu3button"><br>
+<input type="button" value="Vehicle Service History" onclick=ServiceVehicleHistory() class="menu3button"><br>
 <input type="button" value="View Daily Checklists" onclick=DailyChecklistReport() class="menu3button"><br>
+<input type="button" value="Last Service Check" onclick=LastServCheck() class="menu3button"><br>
 <?php
 $Dailycheck= DailyCheckListCheck();
 echo '<form action="ViewDailyChecklist.php" method="post"><input name="query" type="hidden" value="CurrentFaults"><input type="submit" class="menu3button" value="View Daily Checklist, Current Faults = '.$Dailycheck.'"></form>';
 
 echo '<input type="button" value="New Spare Part" onclick=NewSparePart() class="menu3button"><br>
 <input type="button" value="New Service Item" onclick=NewServiceItem() class="menu3button"><br>
+<input type="button" onclick=NewVehicle() value="New Vehicle" class="menu3button"><br>
 </p>
 </div>
 </body>

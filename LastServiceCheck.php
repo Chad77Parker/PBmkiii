@@ -25,7 +25,7 @@ LoggedInMenu();
 //***begin page specific code***//
 <div id="scroller">
 <?php
-$query = 'select Name, Make, Model, Registration, E.LastServ as LastServDate, datediff(curdate(),E.LastServ) as DaysSinceService, E.HoursSinceService, E.ServUnitsAmount as Amount, E.ServUnitsType as Units
+$query = 'select vehicles.Ind, Name, Make, Model, Registration, E.LastServ as LastServDate, datediff(curdate(),E.LastServ) as DaysSinceService, E.HoursSinceService, E.ServUnitsAmount as Amount, E.ServUnitsType as Units
 from parkerbros.vehicles left outer join
 	(select VInd, LastServ, ServUnitsAmount, ServUnitsType,  sum(C.HoursForVehicle) as HoursSinceService
 	from
