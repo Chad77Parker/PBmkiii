@@ -56,11 +56,16 @@ function dbfieldname($res, $i){
   return(mysql_field_name($res, $i));
 }
 
+function dbfieldtype($res, $i){
+  return(mysql_field_type($res,$i));
+}
+
 function dbfetchrow($res){
   return(mysql_fetch_row($res));
 }
 
 function buildtable($sql){
+
 $res = dbquery($sql);
 
 $htmlstring = "<table><tr>";
@@ -103,27 +108,178 @@ if ( !file_exists ($save_path.$today) ){
     mkdir( $save_path.$today );
 }
 
-// list all mysql dbs
-$result = mysql_list_dbs();
-
-// init counter var
-$i = 0;
-   // list all databases in mysql
-while ( $i < mysql_num_rows ( $result ) )
-{
-    $tb_names[$i] = mysql_tablename ( $result, $i );
-          $i++;
-}
-
-// loop through table names and do the dump
+// do the dump
 $error = "";
-for ( $i=0; $i<count($tb_names); $i++ )
-{
-    $do = $dump_path . "mysqldump -h".DBHOST." -u".DBUSER." -p".DBPASS." --opt " . $tb_names[$i] . " > " . $save_path . $today . "\\" . $tb_names[$i] . ".sql";
+    $do = $dump_path . "mysqldump -h".DBHOST." -u".DBUSER." -p".DBPASS." --opt parkerbros > " . $save_path . $today . "\\parkerbros.sql";
     system($do, $retv);
     if($retv != 0){$error = $error.'<br>Error with '.$do;}
-}
 dbclose();
 return($error);
+}
+
+//function for building table to add one record
+function addrecord($table){
+$res = dbquery('select * from '.$table);
+
+$htmlstring = "";
+$i = 0;
+while($i < dbnumfields($res)) {
+ switch (dbfieldname($res, $i)){
+  case 'Ind':
+	break;
+  case (strpos(dbfieldname($res, $i), 'Select')>1):
+	$htmlstring=$htmlstring. '<tr><td class="general">'.dbfieldname($res, $i).'<td>' ;
+	$htmlstring=$htmlstring. '<select name="'.dbfieldname($res, $i).'">';
+
+	$res2=dbquery('select * from '.dbfieldname($res, $i).'table');
+	while ($row = dbfetchassoc($res2)) {
+		$htmlstring=$htmlstring. '<option value="'.$row['VALUE'].'">'.$row['LABEL'].'</option>';
+	}
+ 	$htmlstring=$htmlstring. '</select>';
+	break;
+  default:
+   $htmlstring=$htmlstring. '<tr><td class="general">'.dbfieldname($res, $i) ;
+   $now = getdate();
+
+   switch (dbfieldtype($res, $i)){
+    case 'datetime':
+    $htmlstring=$htmlstring. '<td><select name="'.dbfieldname($res, $i).'day">';
+    $x=1;
+    while($x<32){
+        $htmlstring=$htmlstring. '<option';
+        if ($x==$now['mday']){
+            $htmlstring=$htmlstring. ' selected="selected"';
+        }
+	$htmlstring=$htmlstring. '>';
+        if ($x<10){
+	$htmlstring=$htmlstring. '0';
+	}
+	$htmlstring=$htmlstring. $x.'</option>';
+    $x++;
+    }
+    $htmlstring=$htmlstring. '</select>/<select name="'.dbfieldname($res, $i).'month">';
+    $x=1;
+    while($x<13){
+        $htmlstring=$htmlstring. '<option';
+        if ($x==$now['mon']){
+            $htmlstring=$htmlstring. ' selected="selected"';
+        }
+	$htmlstring=$htmlstring. '>';
+        if ($x<10){
+	$htmlstring=$htmlstring. '0';
+	}
+	$htmlstring=$htmlstring. $x.'</option>';
+    $x++;
+    }
+    $htmlstring=$htmlstring. '</select>/<select name="'.dbfieldname($res, $i).'year">';
+    $x=1930;
+    while($x<2020){
+        $htmlstring=$htmlstring. '<option';
+        if ($x==$now['year']){
+            $htmlstring=$htmlstring. ' selected="selected">'.$x.'</option>';
+        }
+        else{
+            $htmlstring=$htmlstring. '>'.$x.'</option>';
+        }
+    $x++;
+    }
+    $htmlstring=$htmlstring. '</select>  <select name="'.dbfieldname($res, $i).'hours">';
+    $x=00;
+    while($x<24){
+        $htmlstring=$htmlstring. '<option';
+        if ($x==$now['hours']){
+            $htmlstring=$htmlstring. ' selected="selected"';
+        }
+        $htmlstring=$htmlstring. '>';
+        if ($x<10){
+            $htmlstring=$htmlstring. '0';
+        }
+        $htmlstring=$htmlstring. $x.'</option>';
+
+    $x++;
+    }$htmlstring=$htmlstring. '</select>:<select name="'.dbfieldname($res, $i).'minutes">';
+    $x=00;
+    while($x<60){
+        $htmlstring=$htmlstring. '<option';
+        if ($x==$now['minutes']){
+            $htmlstring=$htmlstring. ' selected="selected"';
+        }
+        $htmlstring=$htmlstring. '>';
+        if ($x<10){
+            $htmlstring=$htmlstring. '0';
+        }
+        $htmlstring=$htmlstring. $x.'</option>';
+    $x++;
+    }$htmlstring=$htmlstring. '</select>:<select name="'.dbfieldname($res, $i).'seconds">';
+    $x=00;
+    while($x<60){
+        $htmlstring=$htmlstring. '<option';
+        if ($x==$now['seconds']){
+            $htmlstring=$htmlstring. ' selected="selected"';
+        }
+        $htmlstring=$htmlstring. '>';
+        if ($x<10){
+            $htmlstring=$htmlstring. '0';
+        }
+        $htmlstring=$htmlstring. $x.'</option>';
+    $x++;
+    }
+    $htmlstring=$htmlstring. '</select>';
+
+    break;
+    case 'date':
+    $htmlstring=$htmlstring. '<td><select name="'.dbfieldname($res, $i).'day">';
+    $x=1;
+    while($x<32){
+        $htmlstring=$htmlstring. '<option';
+        if ($x==$now['mday']){
+            $htmlstring=$htmlstring. ' selected="selected"';
+        }
+	$htmlstring=$htmlstring. '>';
+        if ($x<10){
+	$htmlstring=$htmlstring. '0';
+	}
+	$htmlstring=$htmlstring. $x.'</option>';
+    $x++;
+    }
+    $htmlstring=$htmlstring. '</select>/<select name="'.dbfieldname($res, $i).'month">';
+    $x=1;
+    while($x<13){
+        $htmlstring=$htmlstring. '<option';
+        if ($x==$now['mon']){
+            $htmlstring=$htmlstring. ' selected="selected"';
+        }
+	$htmlstring=$htmlstring. '>';
+        if ($x<10){
+	$htmlstring=$htmlstring. '0';
+	}
+	$htmlstring=$htmlstring. $x.'</option>';
+    $x++;
+    }
+    $htmlstring=$htmlstring. '</select>/<select name="'.dbfieldname($res, $i).'year">';
+    $x=1930;
+    while($x<2020){
+        $htmlstring=$htmlstring. '<option';
+        if ($x==$now['year']){
+            $htmlstring=$htmlstring. ' selected="selected">'.$x.'</option>';
+        }
+        else{
+            $htmlstring=$htmlstring. '>'.$x.'</option>';
+        }
+    $x++;
+    }
+    $htmlstring=$htmlstring. '</select>';
+    break;
+    default:
+    $htmlstring=$htmlstring. '<td><input type="text" name="'.dbfieldname($res, $i).'">';
+   }
+  }
+$i++;
+}
+
+
+
+
+return($htmlstring);
 }
 ?>
