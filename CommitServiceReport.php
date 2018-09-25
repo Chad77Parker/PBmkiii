@@ -1,37 +1,26 @@
 <?php
-session_start();
-include 'GlobalFunctions.php';
+require_once 'GlobalFunctions.php';
+require_once 'data/dbintegration.php';
+
 echo '<html>
       <head>
-      <title>Parker Bros Earthmoving PTY LTD</title>';
-echo MobileDetect();
-?>
-  
-</head>
-<body>
+      <title>Parker Bros Earthmoving Pty Ltd</title>';
+echo MobileDetect(); /*must be in html header*/
+echo '</head>
+     <body>
 
-<img id="topbanner" src="images\pbbanner1.jpg"  border="0">
-<div id="topbanner">
-Parker Bros Earthmoving Pty Ltd.
-</div>
+     <img id="topbanner" src="images\pbbanner1.jpg"  border="0">
+     <div id="topbanner">
+     Parker Bros Earthmoving Pty Ltd.
+     </div>
 
-<?php
-//connect to database
-$link = @mysql_connect($_SESSION['host'], $_SESSION['user'], $_SESSION['pass']);
-if (!$link) {
-    die('Could not connect to MySQL server: ' . mysql_error());
-}
-$dbname = $_SESSION['datab'];
-$db_selected = mysql_select_db($dbname, $link);
-if (!$db_selected) {
-    die("Could not set $dbname: " . mysql_error());
-}
+     <div id="background">&nbsp</div>';
+
 StandardMenu();
-if ($_SESSION['loggedin'] and !checktimeout()){
-	LoggedInMenu();
-}
+if (checktimeout()){die('<div id= "scroller">You are not authorised to view this page or your session has expired please log in. <a href="ParkerBros.php">Return Home</a></div>');}
+LoggedInMenu();
 ?>
-
+<div id="background">&nbsp</div>
 <div id="scroller">
 <p class="general">
 
@@ -62,43 +51,28 @@ if ($_SESSION['loggedin'] and !checktimeout()){
 
      if($_POST['ItemServiced'.$x ]){
 //debug echo $query ;
-      $res=mysql_query($query);
-        if (!$res){
-     	     die(mysql_error());
-        }
-       echo '<br><h3> Service History Updated </h3>';
+      $res=dbquery($query);
+      echo '<br><h3> Service History Updated </h3>';
      if($DailyChecklistInd){
        $query2='select * from dailychecklist where Ind='.$DailyChecklistInd.';';
-       $res2=mysql_query($query2);
-       if (!$res2){
-          	die(mysql_error());
-       }
+       $res2=dbquery($query2);
        $i = 3;
-       $row = mysql_fetch_row($res2);
-       while($i < mysql_num_fields($res2)-1) {
+       $row = dbfetchrow($res2);
+       while($i < dbnumfields($res2)-1) {
 
 //debug       echo ' ROW:'.$row[$i];
        if($row[$i]=='LOW HAZARD/ASSESMENT REQUIRED' OR $row[$i]=='FAULT' OR $row[$i]=='DO NOT OPERATE'){
-       $query3='update dailychecklist set  '.mysql_field_name($res2, $i).'="REPAIRED" where Ind='.$DailyChecklistInd.';';
+       $query3='update dailychecklist set  '.dbfieldname($res2, $i).'="REPAIRED" where Ind='.$DailyChecklistInd.';';
 //debug       echo $query3 ;
-       $res3=mysql_query($query3);
-       if (!$res3){
-          	die(mysql_error());
-       }
+       $res3=dbquery($query3);
        echo '<br><h3> Daily Checklists Updated </h3>';
        $query5='select max(Ind) from servicehistory;';
-       $res5=mysql_query($query5);
-       if (!$res5){
-          	die(mysql_error());
-       }
-       $row1=mysql_fetch_row($res5);
-       $query4='insert into dailychecklistfaults (DailyChecklistInd, CheckField, Comments) values('.$DailyChecklistInd.', "'.mysql_field_name($res2, $i).
+       $res5=dbquery($query5);
+       $row1=dbfetchrow($res5);
+       $query4='insert into dailychecklistfaults (DailyChecklistInd, CheckField, Comments) values('.$DailyChecklistInd.', "'.dbfieldname($res2, $i).
        '", "Item:'.$_POST['ItemServiced'.$x ].'. '.$_POST['WorkCompleted'.$x ].'.  See Service History Ind:'.$row1[0].'");';
 //debug       echo '  '.$query4.'  ';
-       $res4=mysql_query($query4);
-       if (!$res4){
-          	die(mysql_error());
-       }
+       $res4=dbquery($query4);
        echo '<br><h3> Daily Checklist Faults Updated </h3>';
 
     }
@@ -121,11 +95,5 @@ else{
 
 </p>
 </div>
-
-
-
-
-<div id="background">&nbsp</div>
 </body>
-
 </html>

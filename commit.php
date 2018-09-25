@@ -1,46 +1,31 @@
 <?php
-session_start();
-session_start();
-if ($_SESSION['loggedin']!=true){
-die('You are not authorised to view this page');
-}
-include 'GlobalFunctions.php';
-if (checktimeout()){
-	die('Your connection has expired please log back in.<a href="ParkerBros.php">Return Home</a>');
-}
-echo' 
-<html>
-<head>
-<title>Commit to '.$_GET['table'].' Table</title>';
-echo MobileDetect();
-?>
-<head>
-<body>
-<img id="topbanner" src="images\pbbanner1.jpg"  border="0">
-<div id="topbanner">
-Parker Bros Earthmoving Pty Ltd.
-</div>
+require_once 'GlobalFunctions.php';
+require_once 'data/dbintegration.php';
 
-<?php
-//connect to database
-$link = @mysql_connect('localhost', $_SESSION['user'], $_SESSION['pass']);
-if (!$link) {
-    die('Could not connect to MySQL server: ' . mysql_error());
-}
-$dbname = $_SESSION['datab'];
-$db_selected = mysql_select_db($dbname, $link);
-if (!$db_selected) {
-    die("Could not set $dbname: " . mysql_error());
-}
+echo '<html>
+      <head>
+      <title>Parker Bros Earthmoving Pty Ltd</title>';
+echo MobileDetect(); /*must be in html header*/
+echo '</head>
+     <body>
+
+     <img id="topbanner" src="images\pbbanner1.jpg"  border="0">
+     <div id="topbanner">
+     Parker Bros Earthmoving Pty Ltd.
+     </div>
+
+     <div id="background">&nbsp</div>';
+
 StandardMenu();
-if ($_SESSION['loggedin'] and !checktimeout()){
-	LoggedInMenu();
-}
-echo '<div id="scroller">
-	<p class="general">';
+if (checktimeout()){die('<div id= "scroller">You are not authorised to view this page or your session has expired please log in. <a href="ParkerBros.php">Return Home</a></div>');}
+LoggedInMenu();
+?>
+<div id="background">&nbsp</div>
+<div id="scroller">
+<p class="general">
+<?php
 
-
-$res = mysql_query('select * from '.$_GET['table'], $link);
+$res = dbquery('select * from '.$_GET['table']);
 
 
 
@@ -51,10 +36,10 @@ $res = mysql_query('select * from '.$_GET['table'], $link);
 	
 
 
-		while($i < mysql_num_fields($res)) {
-		if (mysql_field_name($res, $i) != 'Ind'){
-			$query=$query.mysql_field_name($res, $i);
-			if (($i+1) < mysql_num_fields($res)){
+		while($i < dbnumfields($res)) {
+		if (dbfieldname($res, $i) != 'Ind'){
+			$query=$query.dbfieldname($res, $i);
+			if (($i+1) < dbnumfields($res)){
 				$query=$query.', ';
 				}
 			}
@@ -66,64 +51,64 @@ $res = mysql_query('select * from '.$_GET['table'], $link);
 	
 
 		$errorflag=0;
-		while($i < mysql_num_fields($res)){
-		if (mysql_field_name($res, $i) != 'Ind'){
-		switch (mysql_field_type($res, $i)){
+		while($i < dbnumfields($res)){
+		if (dbfieldname($res, $i) != 'Ind'){
+		switch (dbfieldtype($res, $i)){
 		case 'blob':
-			if ($_POST[mysql_field_name($res, $i)]==""){
+			if ($_POST[dbfieldname($res, $i)]==""){
 			echo '<a href="adddata.php?table='.$_GET['table'].'&returnaddress='.$_GET['returnaddress'].'">';
-			echo mysql_field_name($res, $i).' Field not filled in.  Please reenter information</a><br>';
+			echo dbfieldname($res, $i).' Field not filled in.  Please reenter information</a><br>';
 			$errorflag=1;
 			break;
 			}
-			$query=$query.'"'.$_POST[mysql_field_name($res, $i)].'"';
+			$query=$query.'"'.$_POST[dbfieldname($res, $i)].'"';
 			break;
 		case 'string':
-			if ($_POST[mysql_field_name($res, $i)]==""){
+			if ($_POST[dbfieldname($res, $i)]==""){
 			echo '<a href="adddata.php?table='.$_GET['table'].'&returnaddress='.$_GET['returnaddress'].'">';
-			echo mysql_field_name($res, $i).' Field not filled in.  Please reenter information</a><br>';
+			echo dbfieldname($res, $i).' Field not filled in.  Please reenter information</a><br>';
 			$errorflag=1;
 			break;
 			}
-			$query=$query.'"'.$_POST[mysql_field_name($res, $i)].'"';
+			$query=$query.'"'.$_POST[dbfieldname($res, $i)].'"';
 			break;
 		case 'datetime':
-			$querytemp=$_POST[mysql_field_name($res, $i).'year'].
-				$_POST[mysql_field_name($res, $i).'month'].
-				$_POST[mysql_field_name($res, $i).'day'].
-				$_POST[mysql_field_name($res, $i).'hours'].
-				$_POST[mysql_field_name($res, $i).'minutes'].
-				$_POST[mysql_field_name($res, $i).'seconds'];
+			$querytemp=$_POST[dbfieldname($res, $i).'year'].
+				$_POST[dbfieldname($res, $i).'month'].
+				$_POST[dbfieldname($res, $i).'day'].
+				$_POST[dbfieldname($res, $i).'hours'].
+				$_POST[dbfieldname($res, $i).'minutes'].
+				$_POST[dbfieldname($res, $i).'seconds'];
 			if ($querytemp==""){
 			echo '<a href="adddata.php?table='.$_GET['table'].'&returnaddress='.$_GET['returnaddress'].'">';
-			echo mysql_field_name($res, $i).' Field not filled in.  Please reenter information</a><br>';
+			echo dbfieldname($res, $i).' Field not filled in.  Please reenter information</a><br>';
 			$errorflag=1;
 			break;
 			}
 			$query=$query.$querytemp;
 			break;
 		case 'date':
-			$querytemp=$_POST[mysql_field_name($res, $i).'year'].
-				$_POST[mysql_field_name($res, $i).'month'].
-				$_POST[mysql_field_name($res, $i).'day'];
+			$querytemp=$_POST[dbfieldname($res, $i).'year'].
+				$_POST[dbfieldname($res, $i).'month'].
+				$_POST[dbfieldname($res, $i).'day'];
 			if ($querytemp==""){
 			echo '<a href="adddata.php?table='.$_GET['table'].'&returnaddress='.$_GET['returnaddress'].'">';
-			echo mysql_field_name($res, $i).' Field not filled in.  Please reenter information</a><br>';
+			echo dbfieldname($res, $i).' Field not filled in.  Please reenter information</a><br>';
 			$errorflag=1;
 			break;
 			}
 			$query=$query.$querytemp;
 			break;
 		default:
-			if ($_POST[mysql_field_name($res, $i)]==""){
+			if ($_POST[dbfieldname($res, $i)]==""){
 			echo '<a href="adddata.php?table='.$_GET['table'].'&returnaddress='.$_GET['returnaddress'].'">';
-			echo mysql_field_name($res, $i).' Field not filled in.  Please reenter information</a><br>';
+			echo dbfieldname($res, $i).' Field not filled in.  Please reenter information</a><br>';
 			$errorflag=1;
 			break;
 			}
-			$query=$query.$_POST[mysql_field_name($res, $i)];
+			$query=$query.$_POST[dbfieldname($res, $i)];
 		}
-		if (($i+1)<mysql_num_fields($res)){
+		if (($i+1)<dbnumfields($res)){
 		$query=$query.', ';
 		}
 		}
@@ -136,8 +121,7 @@ $res = mysql_query('select * from '.$_GET['table'], $link);
 
 
 if ($errorflag==0){
-	echo $query;
-	$result = mysql_query($query, $link) or die("Could not execute query: " . mysql_error());
+ 	$result = dbquery($query);
 	echo '<h3>DONE!<br>';
 	echo '<h3><a href="'.$_GET['returnaddress'].'">Return to '.$_GET['returnaddress'].'</a></h3>';
 	

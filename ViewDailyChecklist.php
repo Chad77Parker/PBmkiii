@@ -1,48 +1,26 @@
 <?php
-session_start();
-include 'GlobalFunctions.php';
-if ($_SESSION['loggedin']!=true){
-die('You are not authorised to view this page');
-}
-if (checktimeout()){
-	die('Your connection has expired please log back in.<a href="ParkerBros.php">Return Home</a>');
-}
+require_once 'GlobalFunctions.php';
+require_once 'data/dbintegration.php';
+
 echo '<html>
       <head>
       <title>Parker Bros Earthmoving Pty Ltd</title>';
-echo MobileDetect();
-?>
-  
-</head>
-<body>
+echo MobileDetect(); /*must be in html header*/
+echo '</head>
+     <body>
 
-<img id="topbanner" src="images\pbbanner1.jpg"  border="0">
-<div id="topbanner">
-Parker Bros Earthmoving Pty Ltd.
-</div>
+     <img id="topbanner" src="images\pbbanner1.jpg"  border="0">
+     <div id="topbanner">
+     Parker Bros Earthmoving Pty Ltd.
+     </div>
 
-
-<?php
-//connect to database
-$link = @mysql_connect($_SESSION['host'], $_SESSION['user'], $_SESSION['pass']);
-if (!$link) {
-    die('Could not connect to MySQL server: ' . mysql_error());
-}
-$dbname = $_SESSION['datab'];
-$db_selected = mysql_select_db($dbname, $link);
-if (!$db_selected) {
-    die("Could not set $dbname: " . mysql_error());
-}
-
-
+     <div id="background">&nbsp</div>';
 
 StandardMenu();
-if ($_SESSION['loggedin'] and !checktimeout()){
-	LoggedInMenu();
-}
+if (checktimeout()){die('<div id= "scroller">You are not authorised to view this page or your session has expired please log in. <a href="ParkerBros.php">Return Home</a></div>');}
+LoggedInMenu();
 ?>
-
-
+<div id="background">&nbsp</div>
 <div id="scroller">
 <?php
 if ($_POST['query']=="ClientJobDate"){
@@ -56,13 +34,10 @@ if ($_POST['query']=="ClientJobDate"){
   }else if($_POST['ClientInd']!='All'){
   $query='select Ind from parkerbros.jobs where ClientInd='.$_POST['ClientInd'].' and StartDate between "'.$_POST['StartDateyear'].'-'.$_POST['StartDatemonth'].'-'.$_POST['StartDateday'].'" and "'.$_POST['EndDateyear'].'-'.$_POST['EndDatemonth'].'-'.$_POST['EndDateday'].'";';
 
-  $res=mysql_query($query);
-     if(!$res){
-     	   die(mysql_error());
-         }
+  $res=dbquery($query);
          $qJob=' JobInd in(';
          $first=true;
-         while($row=mysql_fetch_assoc($res)){
+         while($row=dbfetchassoc($res)){
          if($first){
                    $qJob=$qJob.$row['Ind'];
                    $first=false;
@@ -88,23 +63,17 @@ $query='select * from parkerbros.dailychecklist where'.$qVehicle.$qJob.' date be
    or Warning_Devices in("FAULT", "LOW HAZARD/ASSESMENT REQUIRED", "DO NOT OPERATE")
    or Other in("FAULT", "LOW HAZARD/ASSESMENT REQUIRED", "DO NOT OPERATE");';
 }
-$res=mysql_query($query);
-if(!$res){
-	die(mysql_error());
-}
+$res=dbquery($query);
 echo '<form><table>';
 $JobInd='hi';
 $VehicleInd='hi';
 $Client = $Job ='Unknown';
-while($row=mysql_fetch_assoc($res)){
+while($row=dbfetchassoc($res)){
     if ($JobInd!=$row['JobInd']){
         $query2='select JobDescription, ContactFirstName, ContactLastName, Company from parkerbros.jobs left outer join parkerbros.contacts on jobs.clientind=contacts.ind where jobs.ind='.$row['JobInd'].';';
 
-        $res2=mysql_query($query2);
-        if(!$res2){
-        	die(mysql_error());
-        }
-        while($row2=mysql_fetch_assoc($res2)){
+        $res2=dbquery($query2);
+        while($row2=dbfetchassoc($res2)){
         $Client =$row2['ContactFirstName'].' '.$row2['ContactLastName'].'.  '.$row2['Company'];
         $Job =$row2['JobDescription'];
         }
@@ -113,11 +82,8 @@ while($row=mysql_fetch_assoc($res)){
     }
     $query3='select Name, Make, Model from parkerbros.vehicles where Ind='.$row['Vehicle'].';';
 
-    $res3=mysql_query($query3);
-        if(!$res3){
-        	die(mysql_error());
-        }
-    while($row3=mysql_fetch_assoc($res3)){
+    $res3=dbquery($query3);
+    while($row3=dbfetchassoc($res3)){
     $Vehicle =$row3['Name'].'.  '.$row3['Make'].' '.$row3['Model'];
     }
     $Date = $row['Date'];
@@ -127,9 +93,9 @@ while($row=mysql_fetch_assoc($res)){
     $i = 0;
     $l=0;
     $htmlstring='';
-    while($i < mysql_num_fields($res)) {
+    while($i < dbnumfields($res)) {
 
- switch (mysql_field_name($res, $i)){
+ switch (dbfieldname($res, $i)){
   case 'Ind':
 	break;
   case 'Vehicle':
@@ -147,23 +113,23 @@ while($row=mysql_fetch_assoc($res)){
   default:
      $sql = 'SELECT column_comment FROM information_schema.columns where table_name = "dailychecklist" and column_name="'.mysql_field_name($res, $i).'";';
 
-     $queryd = mysql_query($sql) or die(mysql_error());
-     $v = mysql_fetch_row($queryd);
+     $queryd = dbquery($sql);
+     $v = dbfetchrow($queryd);
      if($v){
          $description= $v[0];
          }
       $Comment ='';
-      if($row[mysql_field_name($res, $i)]!='OK'){
+      if($row[dbfieldname($res, $i)]!='OK'){
       $querycomment='select * from parkerbros.dailychecklistfaults where DailyChecklistInd="'.$row['Ind'].'" and CheckField="'.mysql_field_name($res, $i).'";';
-      $rescomment=mysql_query($querycomment) or die(mysql_error());
-      while($rowcomment=mysql_fetch_assoc($rescomment)){
+      $rescomment=dbquery($querycomment);
+      while($rowcomment=dbfetchassoc($rescomment)){
       $Comment = $rowcomment['Comments'];
       }
     }
 
-      $htmlstring=$htmlstring. '<tr><td class="general"><b>'.mysql_field_name($res, $i).'</b>.  '.$description.
-	'<td class="general"><input type="textbox" name="'.mysql_field_name($res, $i).'" value="'.$row[mysql_field_name($res, $i)].'">
-  <td class="general">Description<td class="general"><input type="text" name="Comment'.mysql_field_name($res, $i).'" value="'.$Comment.'">' ;
+      $htmlstring=$htmlstring. '<tr><td class="general"><b>'.dbfieldname($res, $i).'</b>.  '.$description.
+	'<td class="general"><input type="textbox" name="'.dbfieldname($res, $i).'" value="'.$row[dbfieldname($res, $i)].'">
+  <td class="general">Description<td class="general"><input type="text" name="Comment'.dbfieldname($res, $i).'" value="'.$Comment.'">' ;
  }
 $i++;
 }
@@ -173,15 +139,6 @@ echo $htmlstring;
 
 echo '</table></form>';
 ?>
-
 </div>
-
-
-
-
-
-
-<div id="background">&nbsp</div>
-
 </body>
 </html>

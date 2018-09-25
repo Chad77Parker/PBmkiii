@@ -1,17 +1,27 @@
 <?php
-session_start();
-include 'GlobalFunctions.php';
-if ($_SESSION['loggedin']!=true){
-die('You are not authorised to view this page');
-}
-if (checktimeout()){
-	die('Your connection has expired please log back in.<a href="ParkerBros.php">Return Home</a>');
-}
+require_once 'GlobalFunctions.php';
+require_once 'data/dbintegration.php';
+
 echo '<html>
       <head>
-      <title>Select Employee Hours</title>';
-echo MobileDetect();
+      <title>Parker Bros Earthmoving Pty Ltd</title>';
+echo MobileDetect(); /*must be in html header*/
+echo '</head>
+     <body>
+
+     <img id="topbanner" src="images\pbbanner1.jpg"  border="0">
+     <div id="topbanner">
+     Parker Bros Earthmoving Pty Ltd.
+     </div>
+
+     <div id="background">&nbsp</div>';
+
+StandardMenu();
+if (checktimeout()){die('<div id= "scroller">You are not authorised to view this page or your session has expired please log in. <a href="ParkerBros.php">Return Home</a></div>');}
+LoggedInMenu();
 ?>
+<div id="background">&nbsp</div>
+<div id="scroller">
 <script type="text/javascript" language="javascript"> 
 
 
@@ -79,31 +89,8 @@ while(eom!=1){
 }
 }
 </script>
-</head>
-<body>
-
-<img id="topbanner" src="images\pbbanner1.jpg"  border="0">
-<div id="topbanner">
-Parker Bros Earthmoving Pty Ltd.
-</div>
-
 <?php
-//connect to database
-$link = @mysql_connect($_SESSION['host'], $_SESSION['user'], $_SESSION['pass']);
-if (!$link) {
-    die('Could not connect to MySQL server: ' . mysql_error());
-}
-$dbname = $_SESSION['datab'];
-$db_selected = mysql_select_db($dbname, $link);
-if (!$db_selected) {
-    die("Could not set $dbname: " . mysql_error());
-}
-StandardMenu();
-if ($_SESSION['loggedin'] and !checktimeout()){
-	LoggedInMenu();
-}
-echo '<div id="scroller">
-	<p class="general">
+	echo '<p class="general">
 
 	<h3>Select Criteria To View Employee Hours</h3>
 	<form name="DateSelect" action="ViewEmployeeHours.php" method="post">
@@ -203,16 +190,12 @@ $now=getdate();
 /* can be added for admin to access all employees
 echo '<td class="general">'; 
 $query='select Ind, FirstName, LastName from employees;';
-$res=mysql_query($query, $link);
-if (!res){
-	die(mysql_error());
-}
+$res=dbquery($query);
 echo '<select name="EmployeeInd">';
 $htmlstring='';
-while ($row = mysql_fetch_assoc($res)) {
+while ($row = dbfetchassoc($res)) {
 	 $htmlstring=$htmlstring. '<option value="'.$row['Ind'].'">'.$row['FirstName'].' '.$row['LastName'].'</option>';
 	}
-	mysql_free_result($res2);
 echo $htmlstring;
 */
 echo '<input type="hidden" name="EmployeeInd" value="'.$_SESSION['EmployeeInd'].'">';
@@ -224,10 +207,5 @@ echo '<tr><td colspan="3"><input type="submit" Value="View Hours"></table>';
 
 </p>
 </div>
-
-<div id="background">&nbsp</div>
-
-
-
 </body>
 </html>

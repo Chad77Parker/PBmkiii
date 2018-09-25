@@ -17,7 +17,7 @@ body{
 }
 #scroller {
 	position:absolute; 
-	left:11em; 
+	left:10%;
 	width:85%; 
 	height:83%; 	top:17%; 
 	overflow:auto; 

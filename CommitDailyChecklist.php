@@ -1,37 +1,26 @@
 <?php
-session_start();
-include 'GlobalFunctions.php';
+require_once 'GlobalFunctions.php';
+require_once 'data/dbintegration.php';
+
 echo '<html>
       <head>
-      <title>Parker Bros Earthmoving PTY LTD</title>';
-echo MobileDetect();
-?>
-  
-</head>
-<body>
+      <title>Parker Bros Earthmoving Pty Ltd</title>';
+echo MobileDetect(); /*must be in html header*/
+echo '</head>
+     <body>
 
-<img id="topbanner" src="images\pbbanner1.jpg"  border="0">
-<div id="topbanner">
-Parker Bros Earthmoving Pty Ltd.
-</div>
+     <img id="topbanner" src="images\pbbanner1.jpg"  border="0">
+     <div id="topbanner">
+     Parker Bros Earthmoving Pty Ltd.
+     </div>
 
-<?php
-//connect to database
-$link = @mysql_connect($_SESSION['host'], $_SESSION['user'], $_SESSION['pass']);
-if (!$link) {
-    die('Could not connect to MySQL server: ' . mysql_error());
-}
-$dbname = $_SESSION['datab'];
-$db_selected = mysql_select_db($dbname, $link);
-if (!$db_selected) {
-    die("Could not set $dbname: " . mysql_error());
-}
+     <div id="background">&nbsp</div>';
+
 StandardMenu();
-if ($_SESSION['loggedin'] and !checktimeout()){
-	LoggedInMenu();
-}
+if (checktimeout()){die('<div id= "scroller">You are not authorised to view this page or your session has expired please log in. <a href="ParkerBros.php">Return Home</a></div>');}
+LoggedInMenu();
 ?>
-
+<div id="background">&nbsp</div>
 <div id="scroller">
 <p class="general">
 
@@ -44,14 +33,12 @@ if ($_SESSION['loggedin'] and !checktimeout()){
 
 
      $query2='select * from dailychecklist;';
-     $res=mysql_query($query2);
-     if (!$res){
-     	die(mysql_error());
-      }
-  $ChecklistInd = mysql_num_rows($res)+1;
+     $res=dbquery($query2);
+
+  $ChecklistInd = dbnumrows($res)+1;
       $i = 0;
-     while($i < mysql_num_fields($res)) {
-       switch (mysql_field_name($res, $i)){
+     while($i < dbnumfields($res)) {
+       switch (dbfieldname($res, $i)){
        case 'Ind':
      	      break;
        case 'Vehicle':
@@ -61,29 +48,21 @@ if ($_SESSION['loggedin'] and !checktimeout()){
        case 'JobInd';
             break;
        default:
-            if( $_POST[mysql_field_name($res, $i)]=="OK"){
-                $query =$query .',"'.$_POST[mysql_field_name($res, $i)].'"';
+            if( $_POST[dbfieldname($res, $i)]=="OK"){
+                $query =$query .',"'.$_POST[dbfieldname($res, $i)].'"';
             }
             else{
-                 $query =$query .',"'.$_POST['action'.mysql_field_name($res, $i)].'"';
-                 $comments = $_POST['Comment'.mysql_field_name($res, $i)];
+                 $query =$query .',"'.$_POST['action'.dbfieldname($res, $i)].'"';
+                 $comments = $_POST['Comment'.dbfieldname($res, $i)];
                  $query3='insert into dailychecklistfaults (DailyChecklistInd, CheckField, Comments) values("'.$ChecklistInd.'", "'.mysql_field_name($res, $i).'", "'.$comments .'");';
-                 $res2=mysql_query($query3, $link);
-		             if (!$res2){
-                    echo $query3 ;
-			              die(mysql_error());
-                 }
+                 $res2=dbquery($query3);
             }
       }
       $i++;
      }
 $query =$query .');';
-/* debug  echo $query ;  */
-		$res=mysql_query($query, $link);
-		if (!$res){
-      echo $query ;
-			die(mysql_error());
-		}
+$res=dbquery($query);
+
 echo '<h3> Daily Checklist successfully saved </h3>';
 }
 else{
